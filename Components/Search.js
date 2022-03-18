@@ -12,6 +12,8 @@ import {
 import FilmItem from "./FilmItems";
 import films from "../Helpers/filmsData";
 import getFilmsFromApiWithSearchedText from "../API/TMDBApi";
+import "react-json-pretty/themes/adventure_time.css";
+import JSONPretty from "react-json-pretty";
 
 const styles = StyleSheet.create({
   main_container: {
@@ -40,18 +42,19 @@ const styles = StyleSheet.create({
 class Search extends React.Component {
   constructor(props) {
     super(props);
+    this.totalPages = 0;
+    this.page = 0;
     this.state = { films: [], height: 0 };
     this.searchedText = "";
     // ceci va devenir un state
   }
   _searchFilms() {
-    this.page = 1;
-    this.totalPages = 100;
-    this.results = 1981;
     // setState est une fonction asychrone
     // Pour améliorer les performances React peut en différer les traitements
     // Elle prend un deuxième paramètre
     //      une fonction callback qui est appelée lorsque tout est prêt
+    this.totalPages = 0;
+    this.page = 0;
     this.setState(
       {
         films: [],
@@ -77,6 +80,7 @@ class Search extends React.Component {
     this.setState({ isLoading: true });
     getFilmsFromApiWithSearchedText(this.searchedText, this.page + 1).then(
       (data) => {
+        /* alert("liste film");*/
         this.page = data.page;
         this.totalPages = data.total_pages;
         this.setState({
@@ -89,7 +93,10 @@ class Search extends React.Component {
       }
     );
   }
-
+  displayDetailForFilm = (idFilm) => {
+    console.log("film.id=" + idFilm);
+    this.props.navigation.navigate("FilmDetail", { idFilm: idFilm });
+  };
   render() {
     return (
       // Ici on rend à l'écran les éléments graphiques de notre component custom Search
@@ -102,11 +109,21 @@ class Search extends React.Component {
         ></TextInput>
         <Button title="Rechercher" onPress={() => this._searchFilms()} />
         <View style={{ flex: 1 }} contentContainerStyle={{ flex: 1 }}>
+          <View>
+            {/*<JSONPretty id="json-pretty" data={this.state.films}></JSONPretty>*/}
+          </View>
           <FlatList
             onLayout={(e) => {
               this.setState({ height: e.nativeEvent.layout.height });
               console.log(e.nativeEvent.layout.height);
             }}
+            data={this.state.films}
+            renderItem={({ item }) => (
+              <FilmItem
+                film={item}
+                displayDetailForFilm={this.displayDetailForFilm}
+              />
+            )}
             style={{
               flexGrow: 1,
               height: this.state.height,
