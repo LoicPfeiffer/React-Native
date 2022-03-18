@@ -16,5 +16,25 @@ const getFilmsFromApiWithSearchedText = async (text, page) => {
   console.log("--fin getFilmsFromApiWithSearchedText--");
   return response.data;
 };
+const getImageFromApi = (name) => {
+  if (name === null || name === undefined)
+    return require("../Assets/filmVide.png");
+  // 'https://image.tmdb.org/t/p/original' + name
+  // 'https://image.tmdb.org/t/p/w300' + name
+  return { uri: "https://image.tmdb.org/t/p/w300" + name };
+};
+
+const getFilmDetailFromApi = async (id) => {
+  const url =
+    "https://api.themoviedb.org/3/movie/" +
+    id +
+    "?api_key=" +
+    API_TOKEN +
+    "&language=fr";
+  const response = await axios.get(url);
+  return response.data;
+};
 
 export default getFilmsFromApiWithSearchedText;
+export { getImageFromApi };
+export { getFilmsFromApiWithSearchedText, getFilmDetailFromApi };
